@@ -9,6 +9,7 @@ def get_connection(db, user=user, host=host, password=password):
     '''
     This function uses my info from my env file to
     create a connection url to access the Codeup db.
+    It takes in a string name of a database as an argument.
     '''
     return f'mysql+pymysql://{user}:{password}@{host}/{db}'
     
@@ -29,24 +30,23 @@ def new_titanic_data():
 
 
 
-def get_titanic_data(cached=False):
+def get_titanic_data():
     '''
-    This function reads in titanic data from Codeup database and writes data to
-    a csv file if cached == False or if cached == True reads in titanic df from
-    a csv file, returns df.
+    This function reads in titanic data from Codeup database, writes data to
+    a csv file if a local file does not exist, and returns a df.
     '''
-    if cached == False or os.path.isfile('titanic_df.csv') == False:
+    if os.path.isfile('titanic_df.csv'):
+        
+        # If csv file exists, read in data from csv file.
+        df = pd.read_csv('titanic_df.csv', index_col=0)
+        
+    else:
         
         # Read fresh data from db into a DataFrame.
         df = new_titanic_data()
         
         # Write DataFrame to a csv file.
         df.to_csv('titanic_df.csv')
-        
-    else:
-        
-        # If csv file exists or cached == True, read in data from csv file.
-        df = pd.read_csv('titanic_df.csv', index_col=0)
         
     return df
 
@@ -57,15 +57,15 @@ def new_iris_data():
     This function reads the iris data from the Codeup db into a df.
     '''
     sql_query = """
-                SELECT species_id,
-                species_name,
-                sepal_length,
-                sepal_width,
-                petal_length,
-                petal_width
+                SELECT 
+                    species_id,
+                    species_name,
+                    sepal_length,
+                    sepal_width,
+                    petal_length,
+                    petal_width
                 FROM measurements
-                JOIN species
-                USING(species_id)
+                JOIN species USING(species_id)
                 """
     
     # Read in DataFrame from Codeup db.
@@ -74,24 +74,22 @@ def new_iris_data():
     return df
 
 
-
-def get_iris_data(cached=False):
+def get_iris_data():
     '''
-    This function reads in iris data from Codeup database and writes data to
-    a csv file if cached == False or if cached == True reads in iris df from
-    a csv file, returns df.
+    This function reads in iris data from Codeup database, writes data to
+    a csv file if a local file does not exist, and returns a df.
     '''
-    if cached == False or os.path.isfile('iris_df.csv') == False:
+    if os.path.isfile('iris_df.csv'):
+        
+        # If csv file exists read in data from csv file.
+        df = pd.read_csv('iris_df.csv', index_col=0)
+        
+    else:
         
         # Read fresh data from db into a DataFrame
         df = new_iris_data()
         
         # Cache data
         df.to_csv('iris_df.csv')
-        
-    else:
-        
-        # If csv file exists or cached == True, read in data from csv file.
-        df = pd.read_csv('iris_df.csv', index_col=0)
         
     return df
